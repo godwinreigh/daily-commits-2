@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.myImage {
+  width: 100%;
+}
+.container {
+  width: 50%;
+  margin: 5% auto;
+}
+
+.imgOverlay {
+  display: flex;
+  margin-bottom: 5%;
+  overflow: hidden;
+}
+
+.imgs {
+  width: 100px;
+  height: 100%;
+  margin-left: 1px;
+}
+
+.active {
+  width: 100px;
+  height: 100%;
+  border: 1px solid red;
+}
