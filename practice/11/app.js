@@ -7,17 +7,33 @@ const displayTotalPrice = document.querySelector('.totalPrice');
 insBtn.addEventListener('click', add);
 let connectDisplay = false;
 
-const items = [
-    {item: "Apple", price: 1},
-    {item: "Chocolates", price: 5},
-    {item: "Fish", price: 10}    
-]
+//localStorage.clear()
 
+const items = []
+const localStorageLength = localStorage.length;
+
+for(i = 0; localStorageLength > i; i++)
+{
+    const getItemPrice = localStorage.getItem("Price: " + i)
+    const getItemName = localStorage.getItem("Name: " + i)
+
+    items.push({NameOfItem: getItemName, PriceOfItem: parseInt(getItemPrice) })
+}
+for(i = 0; items.length - 1 > i; i++)
+{
+    items.pop()
+}
+
+console.log(items)
+// for (i = 0; items.length - 2 > i; i++)
+// {
+//     items.splice(i, 1) 
+// }
 // TEST (if you want to test something do here) // 
 
 //how to edit in multiple stuff
-items[0].item = "Orange";
-console.log(items[0].item)
+// items[0].item = "Orange";
+// console.log(items[0].item)
 
 //simple push
 //items.push({item: "asdsd", price: 23});
@@ -25,11 +41,14 @@ console.log(items[0].item)
 //TEST END//
 
 
-
-
-
-
-
+function clearPrevItem()
+{
+    //clear prevItem
+    const prevItems = document.querySelectorAll(".Items");  
+    prevItems.forEach((item) =>{
+        cart.removeChild(item);
+    })
+}
 
 //display
 
@@ -37,21 +56,22 @@ function display()
 {
     //converting it, so js textNode can read it if not it returns [object OBJECT]
 
-    //getting all the value of array of item
-    const itemNames =  items.map((item) => {
-        return item.item
-    })
+    // //getting all the value of array of item
+    // const itemNames =  items.map((item) => {
+    //     return item.NameOfItem
+    // })
 
-    //getting all the value of array of price
-    const itemPrice =  items.map((item) => {
-        return item.price
-    })
+    // //getting all the value of array of price
+    // const itemPrice =  items.map((item) => {
+    //     return item.PriceOfItem
+    // })
 
 
     if (connectDisplay == true)
     {
         for (let i = 0; i < items.length; i++)
         {
+
         //create new li and btn
         const newLi = document.createElement("li");
         const newBtn = document.createElement("button");
@@ -61,9 +81,9 @@ function display()
         newBtn.innerHTML = "Delete";
 
         newLi.className = "Items";
-       
-        //create text according to the array
-        const text = `Item: ${i + 1} ${itemNames[i]} = Price: ${itemPrice[i]}`
+        
+        //create text according to the array, get the item from local storage
+        const text = `Item: ${i + 1} ${localStorage.getItem("Name: " + i)} = Price: ${localStorage.getItem("Price: " + i)}`
         
         //assign the textNode
         const liText = document.createTextNode(text)
@@ -88,16 +108,11 @@ function display()
 }
 
 
-
-
-
-
 function add()
 {
     //clear prevItem
     clearPrevItem();
 
-    
     //get the value
     let priceValue = parseInt(inputPrice.value, 10);
     let itemName = inputItem.value;
@@ -119,8 +134,20 @@ function add()
         }
         else{
             
-            items.push({ item: `${itemName}`, price: parseInt(priceValue) });
+            let itemsJSON = {
+                NameOfItem: itemName,
+                PriceOfItem: priceValue
+            }
+            
+            items.push(itemsJSON);
+            console.log(items)
 
+            //saving to localStorage
+
+            localStorage.setItem(`Price: ${items.length - 1}`, JSON.stringify(items[items.length - 1].PriceOfItem) )
+            localStorage.setItem(`Name: ${items.length - 1}`, items[items.length - 1].NameOfItem) 
+
+           
             //clear input fields
             inputItem.value = null;
             inputPrice.value = null;
@@ -129,6 +156,7 @@ function add()
             total()
         }
     }
+
     //catch (debugger)
     else
     {
@@ -141,18 +169,20 @@ function add()
 }
 
 
-
-
-
 //index updater (update the index when the user hovers to the list)
 
 //assign indexItems and editbtnValue to be global variable
 let indexItems;
 let editbtnValue;
 
+
 cart.addEventListener('mouseover', (e) =>{
+
+    //get the delBtn and editBtn dom
     const Items = document.querySelectorAll('.delBtn');
     const editItems = document.querySelectorAll('.editBtn')
+    
+  
     for (i = 0; i < items.length; i++)
     {
         //for deleting stuff
@@ -160,18 +190,15 @@ cart.addEventListener('mouseover', (e) =>{
 
         //for editing stuff
         editItems[i].value = i;
+
     }
 
     //assign the value of index when the user click the del/edit button
     indexItems = parseInt(e.target.value);
     editbtnValue = parseInt(e.target.value);
-
-    // console.log(`This is editBtn Value:` + editbtnValue)
-    // console.log(`This is deleteBtn Value:` + indexItems)
 })  
 
-//del function and total calculation
-
+//deleting stuff (active always)
 cart.addEventListener('click', (e) =>{
     
     //if the target contains className "delBtn" do this
@@ -179,17 +206,26 @@ cart.addEventListener('click', (e) =>{
     {  
        
         //delete the array item itself
+        items.splice(indexItems, 1)
         
-        let delUpdatedItemIndex = function()
-        {
-            items.splice(indexItems, 1)
-            return items
-        }   
-        console.log(delUpdatedItemIndex());
-
         //delete the display
         let li = e.target.parentElement;
         cart.removeChild(li);
+
+        //delete the localStorage item itself
+        localStorage.removeItem("Price: " + indexItems)
+        localStorage.removeItem("Name: " +  indexItems)
+
+        //update the localStorage
+        localStorage.clear()
+
+        for(j = 0; items.length > j; j++)
+        {
+         localStorage.setItem("Price: " + j, items[j].PriceOfItem)
+         localStorage.setItem("Name: " + j, items[j].NameOfItem)
+        }
+        console.log(items)
+        console.log(j)
     }
 
     //then go to total function
@@ -197,22 +233,13 @@ cart.addEventListener('click', (e) =>{
 })
 
 
-
-
-
-
-
-
-
-
-
 function total()
 {
     //get the total
     let totalPrice = items.reduce((currentTotal, item) => {
-        return item.price + currentTotal;
+        return item.PriceOfItem + currentTotal;
     }, 0)
-
+    
     //display the total
     displayTotalPrice.innerHTML = totalPrice;
 }
@@ -228,9 +255,16 @@ let clicks = 0;
 function edit(e)
 {   
     const itemLi = document.querySelectorAll('.Items')
-    //disable all buttons
+
+    //disable all buttons (to not cause a bug)
     const editButtons = document.querySelectorAll(".editBtn");
+    const delBtn = document.querySelectorAll(".delBtn");
+
     editButtons.forEach((item) =>{
+        item.disabled = true;
+    })
+
+    delBtn.forEach((item)=>{
         item.disabled = true;
     })
 
@@ -269,7 +303,6 @@ function edit(e)
             item.disabled = false;
         })
 
-
         //get the input dom
         const nameInput = document.querySelector('.nameInput');
         const priceInput = document.querySelector('.priceInput');
@@ -277,17 +310,21 @@ function edit(e)
         
         //editing the Price\\
 
+        //check if the priceInput data type is correct
+        
         let val = parseInt(priceInput.value);
-
         let checkNan = isNaN(parseInt(priceInput.value));
         
-        //check if the priceInput data type is correct
+        //if wrong do this
         if(checkNan === true)
         {
-            //if there's characters warn user, if there's nothing don't
+            //if there's stringcharacters warn user, if there's nothing don't
             if(priceInput.value.length >= 1)
             {
+                //warn user
                 alert("Wrong Parameters");
+
+                //clear fields
                 priceInput.value = null;
             }
         }
@@ -295,9 +332,15 @@ function edit(e)
         //if correct then change the value of the array   
         else if (typeof val == "number")
         {   
-            items[editbtnValue].price = val; 
+            //edit the array
+            items[editbtnValue].PriceOfItem = val;
+
+            //save to local storage
+            localStorage.setItem("Price: " + editbtnValue, val) 
         }
+
         else{
+            //warn user
             alert('Wrong Value!')
         }
 
@@ -305,42 +348,24 @@ function edit(e)
 
         if(nameInput.value.length >= 1)
         {
-            items[editbtnValue].item = nameInput.value;
+            //edit the array
+            items[editbtnValue].NameOfItem = nameInput.value;
+
+            //save to local storage
+            localStorage.setItem("Name: " + editbtnValue, nameInput.value)
         }
 
         //clear previous items
         clearPrevItem()
+
+        //update the display
         connectDisplay = true;
         display();
 
-        //remove the input node to the dom
-        nameInput.remove();
-        priceInput.remove();
-
         clicks = 0
-        
     }
 }
 
-
-
-
-
-
-
-function clearPrevItem()
-{
-    //clear prevItem
-    const prevItems = document.querySelectorAll(".Items");  
-    prevItems.forEach((item) =>{
-        cart.removeChild(item);
-    })
-}
-
-
-
-
-
 //main display
-connectDisplay = true;
-display();
+ connectDisplay = true;
+ display();

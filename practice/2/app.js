@@ -12,11 +12,11 @@ console.log(person);
 document.write("\n");
 for (i = 0; i < 10; i++) {
 
-    document.write(i);
+    console.log(i);
 
     for (j = 0; j < i; j++) {
-        document.write(j);
+        console.log(j);
 
     }
-    document.write("\n");
+    console.log("\n");
 }
