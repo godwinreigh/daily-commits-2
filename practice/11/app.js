@@ -66,7 +66,6 @@ function display()
     //     return item.PriceOfItem
     // })
 
-
     if (connectDisplay == true)
     {
         for (let i = 0; i < items.length; i++)
@@ -98,7 +97,7 @@ function display()
         const newEditbtn = document.createElement("button");
         newEditbtn.className = "editBtn";
         newEditbtn.innerHTML = "Edit";
-        newEditbtn.addEventListener('click', edit)
+        newEditbtn.addEventListener('click', editItem)
         
         newLi.appendChild(newEditbtn);
     
@@ -106,7 +105,16 @@ function display()
         connectDisplay = false;
     }
 }
+document.querySelector('.delAll').addEventListener('click', delAll)
 
+function delAll()
+{
+    if (confirm("Are you Sure?"))
+    {
+        localStorage.clear();
+        location.reload();
+    } 
+}
 
 function add()
 {
@@ -175,27 +183,22 @@ function add()
 let indexItems;
 let editbtnValue;
 
-
 cart.addEventListener('mouseover', (e) =>{
 
-    //get the delBtn and editBtn dom
+    //get the delBtn 
     const Items = document.querySelectorAll('.delBtn');
-    const editItems = document.querySelectorAll('.editBtn')
-    
-  
+    const EditBtns = document.querySelectorAll('.editBtn');
+
     for (i = 0; i < items.length; i++)
     {
         //for deleting stuff
         Items[i].value = i;
 
-        //for editing stuff
-        editItems[i].value = i;
-
+        EditBtns[i].value = i
     }
 
     //assign the value of index when the user click the del/edit button
     indexItems = parseInt(e.target.value);
-    editbtnValue = parseInt(e.target.value);
 })  
 
 //deleting stuff (active always)
@@ -204,7 +207,6 @@ cart.addEventListener('click', (e) =>{
     //if the target contains className "delBtn" do this
     if(e.target.classList.contains("delBtn"))
     {  
-       
         //delete the array item itself
         items.splice(indexItems, 1)
         
@@ -224,12 +226,16 @@ cart.addEventListener('click', (e) =>{
          localStorage.setItem("Price: " + j, items[j].PriceOfItem)
          localStorage.setItem("Name: " + j, items[j].NameOfItem)
         }
-        console.log(items)
-        console.log(j)
-    }
 
-    //then go to total function
-    total()
+        //update the display
+        clearPrevItem()
+
+        connectDisplay = true;
+        display()
+
+        //then go to total function
+        total()
+    }
 })
 
 
@@ -252,44 +258,46 @@ total()
 
 let clicks = 0;
 
-function edit(e)
+function editItem(e)
 {   
-    const itemLi = document.querySelectorAll('.Items')
-
+    const itemLi = document.querySelectorAll('.Items');
+    
     //disable all buttons (to not cause a bug)
-    const editButtons = document.querySelectorAll(".editBtn");
+    const editBtn = document.querySelectorAll(".editBtn");
     const delBtn = document.querySelectorAll(".delBtn");
 
-    editButtons.forEach((item) =>{
-        item.disabled = true;
+    editBtn.forEach((itemEditBtn) =>{
+        itemEditBtn.disabled = true;
     })
 
-    delBtn.forEach((item)=>{
-        item.disabled = true;
+    delBtn.forEach((itemDelBtn)=>{
+        itemDelBtn.disabled = true;
     })
-
+  
     //do when editing
     if (clicks != 1)
     {
         clicks++;
-        e.target.innerHTML = "Done"
+        e.target.innerHTML = "Done";
 
         //enable the target button
         e.target.disabled = false;
 
-        const nameInput = document.createElement('input');
-        const priceInput = document.createElement('input');
+        const newnameInput = document.createElement('input');
+        const newpriceInput = document.createElement('input');
 
-        nameInput.className = "nameInput";
-        priceInput.className = "priceInput";
+        newnameInput.className = "nameInput";
+        newpriceInput.className = "priceInput";
 
-        nameInput.placeholder = "Edit Name";
-        priceInput.placeholder = "Edit Price";
+        newnameInput.placeholder = "Edit Name";
+        newpriceInput.placeholder = "Edit Price";
 
-        const targetLi = itemLi[editbtnValue];
-
-        targetLi.appendChild(nameInput);
-        targetLi.appendChild(priceInput);
+        const targetLi = itemLi[indexItems];
+        
+        targetLi.appendChild(newnameInput);
+        targetLi.appendChild(newpriceInput);
+    
+      
     }
 
     //do when done
@@ -299,7 +307,7 @@ function edit(e)
         e.target.innerHTML = "Edit"
 
         //enable all buttons
-        editButtons.forEach((item) =>{
+        editBtn.forEach((item) =>{
             item.disabled = false;
         })
 
@@ -313,6 +321,7 @@ function edit(e)
         //check if the priceInput data type is correct
         
         let val = parseInt(priceInput.value);
+        
         let checkNan = isNaN(parseInt(priceInput.value));
         
         //if wrong do this
@@ -333,10 +342,10 @@ function edit(e)
         else if (typeof val == "number")
         {   
             //edit the array
-            items[editbtnValue].PriceOfItem = val;
+            items[indexItems].PriceOfItem = val;
 
             //save to local storage
-            localStorage.setItem("Price: " + editbtnValue, val) 
+            localStorage.setItem("Price: " + indexItems, val) 
         }
 
         else{
@@ -349,22 +358,27 @@ function edit(e)
         if(nameInput.value.length >= 1)
         {
             //edit the array
-            items[editbtnValue].NameOfItem = nameInput.value;
+            items[indexItems].NameOfItem = nameInput.value;
 
             //save to local storage
-            localStorage.setItem("Name: " + editbtnValue, nameInput.value)
+            localStorage.setItem("Name: " + indexItems , nameInput.value)
         }
 
         //clear previous items
         clearPrevItem()
 
+        //calculate total
+        total()
+
         //update the display
         connectDisplay = true;
         display();
 
+        //reset num of clicks
         clicks = 0
     }
 }
+
 
 //main display
  connectDisplay = true;
