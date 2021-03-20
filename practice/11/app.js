@@ -73,11 +73,12 @@ function display()
 
         //create new li and btn
         const newLi = document.createElement("li");
-        const newBtn = document.createElement("button");
+        const newDelBtn = document.createElement("button");
         
         //assign the className of btn and li and text
-        newBtn.className = "delBtn"; 
-        newBtn.innerHTML = "Delete";
+        newDelBtn.className = "delBtn"; 
+        newDelBtn.innerHTML = "Delete";
+        newDelBtn.addEventListener('click', delStuff);
 
         newLi.className = "Items";
         
@@ -90,7 +91,7 @@ function display()
         //append stuff (update)
         newLi.append(liText); 
         cart.append(newLi);
-        newLi.appendChild(newBtn);
+        newLi.appendChild(newDelBtn);
         
 
         //for editing stuff
@@ -105,6 +106,8 @@ function display()
         connectDisplay = false;
     }
 }
+
+//del all function
 document.querySelector('.delAll').addEventListener('click', delAll)
 
 function delAll()
@@ -115,6 +118,7 @@ function delAll()
         location.reload();
     } 
 }
+
 
 function add()
 {
@@ -176,14 +180,9 @@ function add()
     display()
 }
 
-
 //index updater (update the index when the user hovers to the list)
-
-//assign indexItems and editbtnValue to be global variable
-let indexItems;
-let editbtnValue;
-
-cart.addEventListener('mouseover', (e) =>{
+function updateIndex(e)
+{
 
     //get the delBtn 
     const Items = document.querySelectorAll('.delBtn');
@@ -198,68 +197,67 @@ cart.addEventListener('mouseover', (e) =>{
     }
 
     //assign the value of index when the user click the del/edit button
-    indexItems = parseInt(e.target.value);
-})  
+    return indexItems = parseInt(e.target.value);  
+}
+
 
 //deleting stuff (active always)
-cart.addEventListener('click', (e) =>{
+
+function delStuff(e)
+{
+    let indexItems = updateIndex(e)
     
-    //if the target contains className "delBtn" do this
-    if(e.target.classList.contains("delBtn"))
-    {  
-        //delete the array item itself
-        items.splice(indexItems, 1)
-        
-        //delete the display
-        let li = e.target.parentElement;
-        cart.removeChild(li);
 
-        //delete the localStorage item itself
-        localStorage.removeItem("Price: " + indexItems)
-        localStorage.removeItem("Name: " +  indexItems)
+    //delete the array item itself
+    items.splice(indexItems, 1)
+    
+    //delete the display
+    let li = e.target.parentElement;
+    cart.removeChild(li);
 
-        //update the localStorage
-        localStorage.clear()
+    //delete the localStorage item itself
+    localStorage.removeItem("Price: " + indexItems)
+    localStorage.removeItem("Name: " +  indexItems)
 
-        for(j = 0; items.length > j; j++)
-        {
-         localStorage.setItem("Price: " + j, items[j].PriceOfItem)
-         localStorage.setItem("Name: " + j, items[j].NameOfItem)
-        }
+    //update the localStorage
+    localStorage.clear()
 
-        //update the display
-        clearPrevItem()
-
-        connectDisplay = true;
-        display()
-
-        //then go to total function
-        total()
+    for(j = 0; items.length > j; j++)
+    {
+        localStorage.setItem("Price: " + j, items[j].PriceOfItem)
+        localStorage.setItem("Name: " + j, items[j].NameOfItem)
     }
-})
 
+    //update the display
+    clearPrevItem()
 
+    connectDisplay = true;
+    display()
+
+    //then go to total function
+    total()
+}
+   
+  
 function total()
 {
     //get the total
     let totalPrice = items.reduce((currentTotal, item) => {
         return item.PriceOfItem + currentTotal;
     }, 0)
-    
+
     //display the total
     displayTotalPrice.innerHTML = totalPrice;
 }
-
-//update one first to display current total
-total()
 
 
 //edit
 
 let clicks = 0;
-
 function editItem(e)
 {   
+    let indexItems = updateIndex(e)
+
     const itemLi = document.querySelectorAll('.Items');
     
     //disable all buttons (to not cause a bug)
@@ -379,7 +377,9 @@ function editItem(e)
     }
 }
 
+//update one first to display current total
+total()
 
 //main display
- connectDisplay = true;
- display();
+connectDisplay = true;
+display();

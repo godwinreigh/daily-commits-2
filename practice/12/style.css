@@ -1,0 +1,29 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: black;
+}
+
+.images {
+  height: 500px;
+  width: 700px;
+}
+
+/* .imageContainer {
+  height: 500px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+} */
+
+.imageContainer {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
